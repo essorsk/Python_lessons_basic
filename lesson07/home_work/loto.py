@@ -57,3 +57,110 @@
 модуль random: http://docs.python.org/3/library/random.html
 
 """
+
+
+import random
+
+#Sort ascending in rows
+def sort_up(rough_list, begin, end):
+    for i in range(end, begin, -1):
+        for j in range(begin, i):
+            if rough_list[j] > rough_list[j + 1]:
+                rough_list[j], rough_list[j + 1] = rough_list[j + 1], rough_list[j]
+
+
+#Generator of loto Cards
+class Card():
+    def __init__(self):
+        self._row_count = 3
+        self._column_count = 9
+        self._nir_count = 5  #number in row
+        self._numbers = random.sample(range(1, 91), 15)
+        self._kegs_count = 15
+        self._distr_row = list()
+
+        for i in range (self._row_count):
+            sort_up(self._numbers, self._nir_count * i, self._nir_count * (i+1)-1)
+            self._distr_row += random.sample(range(self._column_count), self._nir_count)
+
+    def __str__(self):
+        card = ''
+        num_index = 0
+        for row in range(self._row_count):
+            for cl in range(self._column_count):
+                if cl in self._distr_row[self._nir_count * row: self._nir_count * (row + 1)]:
+                    card += ' ' *(2 - len(str(self._numbers[num_index]))) + str(self._numbers[num_index]) + ' '
+                    num_index += 1
+                else:
+                    card += ' ' * 3
+            card += '\n'
+        return card
+
+    def delete_nums(self, keg):
+        i = self._numbers.index(keg)
+        self._numbers[i] = '-'
+        self._kegs_count -= 1
+        return True
+
+
+#Game body
+my_card = Card()
+c_card = Card()
+print('***  Welcome to LOTO!  ***\n')
+kegs = random.sample(range(1, 91), 90)
+step = 0
+do = ''
+while my_card._kegs_count  > 0 and c_card._kegs_count > 0 and do != 'q':
+    print('\nCurrent nimber is  |{}|  (remain {})'.format(kegs[step], 90 - step - 1))
+    print('\n------- Your Card  -------')
+    print(my_card)
+    print('-----  Computer Card  -----')
+    print(c_card)
+    do = input('Do you want to close your number?  (y/n/q):  ')
+
+    try:
+        bingo = my_card.delete_nums(kegs[step])
+    except ValueError:
+        bingo = False
+
+    try:
+        c_card.delete_nums(kegs[step])
+    except ValueError:
+        pass
+
+    if (do == 'y' and not bingo) or (do == 'n' and bingo):
+        print('Sorry, you loose. Wrong choice ;(')
+        do = 'q'
+    if do != 'y' and do != 'n' and do != 'q':
+        print ('Wrong command, try new game...')
+        do = 'q'
+    print()
+    step +=1
+
+if my_card._kegs_count == 0:
+    print('You win!!!')
+elif c_card._kegs_count == 0:
+    print('You loose ;(')
+elif my_card._kegs_count == 0 and c_card._kegs_count == 0:
+    print('Win-Win!')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    
